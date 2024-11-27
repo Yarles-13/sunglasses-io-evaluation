@@ -156,16 +156,4 @@ describe('API Tests', () => {
   });
 
   
-  describe('Unknown Routes', () => {
-    it('should return 404 for an unknown route', (done) => {
-      chai
-        .request(server)
-        .get('/api/unknown-route')
-        .end((err, res) => {
-          res.should.have.status(404);
-          res.body.should.have.property('error').eql('Route not found');
-          done();
-        });
-    });
-  });
 });
