@@ -1,11 +1,234 @@
 swagger: '2.0'
 info:
-    version: '1.0.0'
-    title: 'E-Commerce API'
-    description: 'API for managing brands, products, and user cart'
+  version: '1.0.0'
+  title: 'Sunglasses and User API'
+  description: 'API for managing brands, products, user data, and user carts'
 host: 'localhost:3000'
-schemes:
-    - 'http'
 basePath: '/api'
-produces:
-    - 'application/json'
+schemes:
+  - 'http'
+paths:
+  /login:
+    post:
+      summary: Log in a user
+      description: Returns a token upon successful login
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              password:
+                type: string
+      responses:
+        200:
+          description: Successful login
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+        401:
+          description: Invalid username or password
+  /brands:
+    get:
+      summary: Get all brands
+      description: Returns a list of all sunglasses brands
+      produces:
+        - application/json
+      responses:
+        200:
+          description: List of brands
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Brand'
+  /brands/{id}/products:
+    get:
+      summary: Get products for a specific brand
+      description: Returns a list of products from the specified brand
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+          description: The ID of the sunglasses brand
+      produces:
+        - application/json
+      responses:
+        200:
+          description: List of products in this brand category
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Product'
+        404:
+          description: Brand not found
+  /products/{id}:
+    get:
+      summary: Get details for a specific product
+      description: Returns details about a specific product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+          description: The ID of the product
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Product details
+          schema:
+            $ref: '#/definitions/Product'
+        404:
+          description: Product not found
+  /cart:
+    get:
+      summary: Get the cart for the logged-in user
+      description: Returns the cart associated with the authenticated user
+      security:
+        - BearerAuth: []
+      produces:
+        - application/json
+      responses:
+        200:
+          description: User's cart
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Product'
+        401:
+          description: Missing or invalid token
+    post:
+      summary: Add a product to the cart
+      description: Adds a product to the authenticated user's cart
+      security:
+        - BearerAuth: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              productId:
+                type: string
+      responses:
+        200:
+          description: Product added successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              cart:
+                type: array
+                items:
+                  $ref: '#/definitions/Product'
+        401:
+          description: Missing or invalid token
+        404:
+          description: Product not found
+securityDefinitions:
+  BearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+definitions:
+  User:
+    type: object
+    properties:
+      gender:
+        type: string
+      cart:
+        type: array
+        items:
+          type: string
+      name:
+        type: object
+        properties:
+          title:
+            type: string
+          first:
+            type: string
+          last:
+            type: string
+      location:
+        type: object
+        properties:
+          street:
+            type: string
+          city:
+            type: string
+          state:
+            type: string
+          postcode:
+            type: integer
+      email:
+        type: string
+        format: email
+      login:
+        type: object
+        properties:
+          username:
+            type: string
+          password:
+            type: string
+      dob:
+        type: string
+        format: date-time
+      registered:
+        type: string
+        format: date-time
+      phone:
+        type: string
+      cell:
+        type: string
+      picture:
+        type: object
+        properties:
+          large:
+            type: string
+            format: uri
+          medium:
+            type: string
+            format: uri
+          thumbnail:
+            type: string
+            format: uri
+      nat:
+        type: string
+  Brand:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+  Product:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      description:
+        type: string
+      price:
+        type: number
+      imageURLs:
+        type: array
+        items:
+          type: string
